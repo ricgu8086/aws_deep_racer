@@ -232,7 +232,7 @@ class DeepRacerEnv(gym.Env):
         elif distance_from_center >= 0.03 and distance_from_center <= 0.05:
             return 0.1
         return 1e-3  # like crashed
-        """"
+        """
         
         reward = 0
         
