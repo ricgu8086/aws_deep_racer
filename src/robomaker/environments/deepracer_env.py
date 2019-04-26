@@ -224,6 +224,7 @@ class DeepRacerEnv(gym.Env):
 
     def reward_function(self, on_track, x, y, distance_from_center, car_orientation, progress, steps,
                         throttle, steering, track_width, waypoints, closest_waypoints):
+        """
         if distance_from_center >= 0.0 and distance_from_center <= 0.02:
             return 1.0
         elif distance_from_center >= 0.02 and distance_from_center <= 0.03:
@@ -231,6 +232,50 @@ class DeepRacerEnv(gym.Env):
         elif distance_from_center >= 0.03 and distance_from_center <= 0.05:
             return 0.1
         return 1e-3  # like crashed
+        """"
+        
+        reward = 0
+        
+        REW_LATERAL_DANGER = 1e3
+        REW_LATERAL_OK = 0.1
+        REW_LATERAL_OUT = 1e5
+        REW_PROGRESS = 1e2
+        REW_FINISH_LAP = 1e4
+        REW_SPEED = 1e4
+        REW_SMOOTH = 1e3
+        
+        
+        # Lateral position
+        dangerous_threshold = 3*track_width/4
+        
+        if distance_from_center >= dangerous_threshold:
+            reward -= REW_LATERAL_DANGER*np.exp(distance_from_center - dangerous_threshold) # Exponential penalty starts after dangerous_threshold
+        else:
+            reward += REW_LATERAL_OK
+            
+        if on_track == False:
+            reward -= REW_LATERAL_OUT
+            
+            
+        # Continuous progress
+        scaled_progress = int(100*progress)
+            
+        if scaled_progress % 10 == 0:
+            reward += REW_PROGRESS*progress
+                
+        # Finished lap
+        if np.isclose(progress,1, atol=1e-2):
+            reward +=  REW_FINISH_LAP
+        
+        # Speed
+        reward +=  REW_SPEED*throttle
+        
+        # Smooth
+        if self.action_taken == self.prev_action:
+            reward +=  REW_SMOOTH
+        
+        return reward
+    
 
     def infer_reward_state(self, steering_angle, throttle):
         # Wait till we have a image from the camera
@@ -420,7 +465,7 @@ class DeepRacerDiscreteEnv(DeepRacerEnv):
     def __init__(self):
         DeepRacerEnv.__init__(self)
 
-        self.action_space = spaces.Discrete(6)
+        self.action_space = spaces.Discrete(10)
 
     def step(self, action):
 
@@ -430,7 +475,8 @@ class DeepRacerDiscreteEnv(DeepRacerEnv):
         throttle = throttle*throttle_multiplier
         steering_angle = 0.8
         
-        self.throttle, self.steering_angle = self.default_6_actions(throttle, steering_angle, action)
+        #self.throttle, self.steering_angle = self.default_6_actions(throttle, steering_angle, action)
+        self.throttle, self.steering_angle = self.two_steering_two_throttle_10_states(throttle, steering_angle, action)
         
         self.action_taken = action
         
