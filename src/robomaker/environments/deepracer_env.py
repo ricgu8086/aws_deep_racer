@@ -31,10 +31,10 @@ TRAINING_IMAGE_SIZE = (160, 120)
 FINISH_LINE = 100
 
 # REWARD ENUM
-CRASHED = 0
+CRASHED = 1e5
 NO_PROGRESS = -1
-FINISHED = 10000000.0
-MAX_STEPS = 1000000
+FINISHED = 1e7 # Max range 1e5, be careful
+MAX_STEPS = 1e6
 
 # WORLD NAME
 EASY_TRACK_WORLD = 'easy_track'
@@ -236,17 +236,17 @@ class DeepRacerEnv(gym.Env):
         
         reward = 0
         
-        REW_LATERAL_DANGER = 1e3
+        REW_LATERAL_DANGER = 1e2
         REW_LATERAL_OK = 0.1
         REW_LATERAL_OUT = 1e5
-        REW_PROGRESS = 1e2
-        REW_FINISH_LAP = 1e4
+        REW_PROGRESS = 1e3
+        REW_FINISH_LAP = 1e5
         REW_SPEED = 1e4
-        REW_SMOOTH = 1e3
+        REW_SMOOTH = 1e2
         
         
         # Lateral position
-        dangerous_threshold = 3*track_width/4
+        dangerous_threshold = 3.0*track_width/4
         
         if distance_from_center >= dangerous_threshold:
             reward -= REW_LATERAL_DANGER*np.exp(distance_from_center - dangerous_threshold) # Exponential penalty starts after dangerous_threshold
@@ -265,7 +265,7 @@ class DeepRacerEnv(gym.Env):
                 
         # Finished lap
         if np.isclose(progress,1, atol=1e-2):
-            reward +=  REW_FINISH_LAP
+            reward +=  REW_FINISH_LAP/float(steps)
         
         # Speed
         reward +=  REW_SPEED*throttle
@@ -306,7 +306,7 @@ class DeepRacerEnv(gym.Env):
         done = False
         on_track = self.on_track
         if on_track != 1:
-            reward = CRASHED
+            reward = -CRASHED
             done = True
         #elif total_progress >= FINISH_LINE:  # reached max waypoints
         #    print("Congratulations! You finished the race!")
