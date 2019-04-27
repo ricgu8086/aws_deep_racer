@@ -237,7 +237,7 @@ class DeepRacerEnv(gym.Env):
         reward = 0
         
         REW_LATERAL_DANGER = 1e2
-        REW_LATERAL_OK = 0.1
+        REW_LATERAL_OK = 0.5
         REW_LATERAL_OUT = 1e5
         REW_PROGRESS = 1e3
         REW_FINISH_LAP = 1e5
@@ -246,12 +246,12 @@ class DeepRacerEnv(gym.Env):
         
         
         # Lateral position
-        dangerous_threshold = 3.0*track_width/4
+        dangerous_threshold = 1.0*track_width/4
         
         if distance_from_center >= dangerous_threshold:
             reward -= REW_LATERAL_DANGER*np.exp(distance_from_center - dangerous_threshold) # Exponential penalty starts after dangerous_threshold
-        else:
-            reward += REW_LATERAL_OK
+        else: # Applying magnet to center reward
+            reward += REW_LATERAL_OK/(distance_from_center+1)
             
         if on_track == False:
             reward -= REW_LATERAL_OUT
