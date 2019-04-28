@@ -237,11 +237,11 @@ class DeepRacerEnv(gym.Env):
         reward = 0
         
         REW_LATERAL_DANGER = 1e2
-        REW_LATERAL_OK = 0.5
+        REW_LATERAL_OK = 10
         REW_LATERAL_OUT = 1e5
         REW_PROGRESS = 1e3
         REW_FINISH_LAP = 1e5
-        REW_SPEED = 1e4
+        REW_SPEED = 1e2
         REW_SMOOTH = 1e2
         
         
@@ -271,8 +271,8 @@ class DeepRacerEnv(gym.Env):
         reward +=  REW_SPEED*throttle
         
         # Smooth
-        if self.action_taken == self.prev_action:
-            reward +=  REW_SMOOTH
+        #if self.action_taken == self.prev_action:
+        #    reward +=  REW_SMOOTH
         
         return reward
     
