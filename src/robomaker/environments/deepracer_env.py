@@ -230,7 +230,7 @@ class DeepRacerEnv(gym.Env):
         marker_3 = 0.5*track_width
         
         THROTTLE_THRESHOLD = 0.5
-        THROTTLE_SCALER = 0.2
+        THROTTLE_SCALER = 2
         
         reward = 1e-3
         
@@ -243,7 +243,7 @@ class DeepRacerEnv(gym.Env):
         elif distance_from_center <= marker_2:
             reward = 0.5
         elif distance_from_center <= marker_3:
-            reward 0.1
+            reward = 0.1
         else:
             reward = 1e-3  # likely crashed / close to off track
             
