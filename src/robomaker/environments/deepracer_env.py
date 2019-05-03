@@ -238,6 +238,7 @@ class DeepRacerEnv(gym.Env):
             reward = 1
             
             if throttle > THROTTLE_THRESHOLD:
+                reward += throttle
                 reward *= THROTTLE_SCALER
                 
         elif distance_from_center <= marker_2:
