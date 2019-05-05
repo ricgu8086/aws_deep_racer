@@ -46,7 +46,6 @@ SLEEP_AFTER_RESET_TIME_IN_SECOND = 0.5
 SLEEP_BETWEEN_ACTION_AND_REWARD_CALCULATION_TIME_IN_SECOND = 0.1
 SLEEP_WAITING_FOR_IMAGE_TIME_IN_SECOND = 0.01
 
-PROGRESS_CHECKPOINT = 10
 
 ### Gym Env ###
 class DeepRacerEnv(gym.Env):
@@ -69,7 +68,9 @@ class DeepRacerEnv(gym.Env):
         self.progress_at_beginning_of_race = 0
         self.prev_closest_waypoint_index = 0
         self.closest_waypoint_index = 0
-
+        
+        self.PROGRESS_CHECKPOINT = 10
+        
         # actions -> steering angle, throttle
         self.action_space = spaces.Box(low=np.array([-1, 0]), high=np.array([+1, +1]), dtype=np.float32)
 
@@ -251,11 +252,11 @@ class DeepRacerEnv(gym.Env):
         # Reward for achieving progress with minimum steps
         scaled_progress = int(100*progress)
             
-        if scaled_progress > PROGRESS_CHECKPOINT:
+        if scaled_progress > self.PROGRESS_CHECKPOINT:
             SCAL_P_FACTOR = 10.0
             reward += SCAL_P_FACTOR*scaled_progress / float(steps + 1e-3) # Avoiding division by zero
             
-            PROGRESS_CHECKPOINT += 10
+            self.PROGRESS_CHECKPOINT += 10
 
         
         return float(reward)
