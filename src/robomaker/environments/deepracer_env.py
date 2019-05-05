@@ -46,6 +46,8 @@ SLEEP_AFTER_RESET_TIME_IN_SECOND = 0.5
 SLEEP_BETWEEN_ACTION_AND_REWARD_CALCULATION_TIME_IN_SECOND = 0.1
 SLEEP_WAITING_FOR_IMAGE_TIME_IN_SECOND = 0.01
 
+PROGRESS_CHECKPOINT = 10
+
 ### Gym Env ###
 class DeepRacerEnv(gym.Env):
     def __init__(self):
@@ -249,9 +251,11 @@ class DeepRacerEnv(gym.Env):
         # Reward for achieving progress with minimum steps
         scaled_progress = int(100*progress)
             
-        if scaled_progress % 10 == 0:
-            SCAL_P_FACTOR = 5.0
+        if scaled_progress > PROGRESS_CHECKPOINT:
+            SCAL_P_FACTOR = 10.0
             reward += SCAL_P_FACTOR*scaled_progress / float(steps + 1e-3) # Avoiding division by zero
+            
+            PROGRESS_CHECKPOINT += 10
 
         
         return float(reward)
