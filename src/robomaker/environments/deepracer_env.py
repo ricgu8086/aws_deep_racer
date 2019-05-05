@@ -251,7 +251,7 @@ class DeepRacerEnv(gym.Env):
             
         if scaled_progress % 10 == 0:
             SCAL_P_FACTOR = 20.0 # Needs to be a big numer because it will be divide by steps, which is also big
-            reward += SCAL_P_FACTOR*scaled_progress / float(steps)
+            reward += SCAL_P_FACTOR*scaled_progress / float(steps + 1e-3) # Avoiding division by zero
 
         
         return float(reward)
