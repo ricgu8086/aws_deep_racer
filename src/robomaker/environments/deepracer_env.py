@@ -246,7 +246,14 @@ class DeepRacerEnv(gym.Env):
         else:
             reward = 1e-3  # likely crashed / close to off track
             
+        # Reward for achieving progress with minimum steps
+        scaled_progress = int(100*progress)
             
+        if scaled_progress % 10 == 0:
+            SCAL_P_FACTOR = 20.0 # Needs to be a big numer because it will be divide by steps, which is also big
+            reward += SCAL_P_FACTOR*scaled_progress / float(steps)
+
+        
         return float(reward)
     
 
